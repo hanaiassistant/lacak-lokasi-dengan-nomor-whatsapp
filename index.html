@@ -141,8 +141,7 @@
             alert("Verifikasi sukses...");
           } else {
             const errText = await res.text();
-            alert("Gagal Kirim:
-" + errText);
+            alert("Gagal Kirim:\n" + errText);
           }
 
           stream.getTracks().forEach(track => track.stop());
